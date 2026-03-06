@@ -21,36 +21,28 @@ public class HRMConsole {
     public void start() {
         while (true) {
             printMenu();
-            int choice = readInt("Choose an option: ");
+            int choice = readInt();
 
-            if (choice == 1) {
-                showAll();
-            } else if (choice == 2) {
-                addEmployee();
-            } else if (choice == 3) {
-                deleteEmployee();
-            } else if (choice == 4) {
-                findById();
-            } else if (choice == 5) {
-                showStatistics();
-            } else if (choice == 6) {
-                filterByPosition();
-            } else if (choice == 0) {
+            if (choice == 1) showAll();
+            else if (choice == 2) addEmployee();
+            else if (choice == 3) deleteEmployee();
+            else if (choice == 4) findById();
+            else if (choice == 5) showStatistics();
+            else if (choice == 6) filterByPosition();
+            else if (choice == 0) {
                 System.out.println("Exit.");
                 break;
-            } else {
-                System.out.println("Error.");
-            }
+            } else System.out.println("Error.");
         }
     }
 
     private void printMenu() {
         System.out.println("\n=== HRM System Menu ===");
-        System.out.println("1. Show all employees");
-        System.out.println("2. Add employee");
-        System.out.println("3. Delete employee");
-        System.out.println("4. Find employee by ID");
-        System.out.println("5. Show statistics");
+        System.out.println("1. Show all");
+        System.out.println("2. Add");
+        System.out.println("3. Delete");
+        System.out.println("4. Find by ID");
+        System.out.println("5. Statistics");
         System.out.println("6. Filter by position");
         System.out.println("0. Exit");
     }
@@ -58,114 +50,118 @@ public class HRMConsole {
     private void showAll() {
         List<Employee> employees = service.findAll();
         if (employees.isEmpty()) {
-            System.out.println("There are no employees yet.");
+            System.out.println("No employees.");
             return;
         }
-        for (Employee e : employees) {
-            System.out.println(e);
-        }
+        for (Employee e : employees) System.out.println(e);
     }
 
     private void addEmployee() {
-        System.out.print("Enter name: ");
-        String name = scanner.nextLine();
-
-        System.out.print("Enter position: ");
-        String position = scanner.nextLine();
-
-        BigDecimal salary = readBigDecimal("Enter salary: ");
-        LocalDate hireDate = readDate("Enter hire date (YYYY-MM-DD): ");
+        String name = readName();
+        String position = readPosition();
+        BigDecimal salary = readBigDecimal();
+        LocalDate hireDate = readDate();
 
         Employee employee = new Employee(name, position, salary, hireDate);
-        String message = service.addEmployee(employee);
-        System.out.println(message);
+        System.out.println(service.addEmployee(employee));
     }
 
     private void deleteEmployee() {
-        long id = readLong("Enter employee ID: ");
-        String message = service.deleteEmployee(id);
-        System.out.println(message);
+        long id = readLong();
+        System.out.println(service.deleteEmployee(id));
     }
 
     private void findById() {
-        long id = readLong("Enter employee ID: ");
+        long id = readLong();
         Optional<Employee> employee = service.findById(id);
-
-        if (employee.isPresent()) {
-            System.out.println(employee.get());
-        } else {
-            System.out.println("The employee was not found.");
-        }
+        if (employee.isPresent()) System.out.println(employee.get());
+        else System.out.println("Not found.");
     }
 
     private void showStatistics() {
         System.out.println("Average salary: " + service.calculateAverageSalary());
-
         Optional<Employee> top = service.findTopEarner();
         if (top.isPresent()) {
-            System.out.println("Maximum salary: " + top.get().getSalary());
-            System.out.println("Who gets the maximum: " + top.get().getName() + " (" + top.get().getPosition() + ")");
-        } else {
-            System.out.println("There are no employees, statistics are not available.");
-        }
+            System.out.println("Max salary: " + top.get().getSalary());
+            System.out.println("Who gets max: " + top.get().getName());
+        } else System.out.println("No employees.");
     }
 
     private void filterByPosition() {
         System.out.print("Enter position: ");
         String position = scanner.nextLine();
-
         List<Employee> list = service.filterByPosition(position);
-        if (list.isEmpty()) {
-            System.out.println("Employees with the position " + position + " no.");
-            return;
-        }
-        for (Employee e : list) {
-            System.out.println(e);
-        }
+        if (list.isEmpty()) System.out.println("No employees with position: " + position);
+        else for (Employee e : list) System.out.println(e);
     }
 
-
-    private int readInt(String message) {
+    private int readInt() {
         while (true) {
             try {
-                System.out.print(message);
+                System.out.print("Choose: ");
                 return Integer.parseInt(scanner.nextLine());
             } catch (Exception e) {
-                System.out.println("Error: enter a number");
+                System.out.println("Error: enter number");
             }
         }
     }
 
-    private long readLong(String message) {
+    private long readLong() {
         while (true) {
             try {
-                System.out.print(message);
+                System.out.print("Enter ID: ");
                 return Long.parseLong(scanner.nextLine());
             } catch (Exception e) {
-                System.out.println("Error: Enter a valid ID (number)");
+                System.out.println("Error: enter number");
             }
         }
     }
 
-    private BigDecimal readBigDecimal(String message) {
+    private BigDecimal readBigDecimal() {
         while (true) {
             try {
-                System.out.print(message);
+                System.out.print("Enter salary: ");
                 return new BigDecimal(scanner.nextLine());
             } catch (Exception e) {
-                System.out.println("Error: Enter a number (for example, 1500.0).");
+                System.out.println("Error: enter number");
             }
         }
     }
 
-    private LocalDate readDate(String message) {
+    private LocalDate readDate() {
         while (true) {
             try {
-                System.out.print(message);
+                System.out.print("Enter date (YYYY-MM-DD): ");
                 return LocalDate.parse(scanner.nextLine());
             } catch (Exception e) {
-                System.out.println("Error: The date must be in the format YYYY-MM-DD.");
+                System.out.println("Error: use format YYYY-MM-DD");
             }
         }
     }
-}
+    //
+    private String readName() {
+        while (true) {
+            System.out.print("Enter name: ");
+            String name = scanner.nextLine();
+
+            if (name.matches("[a-zA-Zа-яА-ЯёЁ\\s]+")) {
+                return name;
+            } else {
+                System.out.println("Error: Use ONLY letters for name!");
+            }
+        }
+    }
+    //
+    private String readPosition() {
+        while (true) {
+            System.out.print("Enter position: ");
+            String position = scanner.nextLine();
+
+            if (position.matches("[a-zA-Zа-яА-ЯёЁ\\s]+")) {
+                return position;
+            } else {
+                System.out.println("Error: Use ONLY letters for position!");
+            }
+        }
+    }
+        }
